@@ -1,11 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
-const container = document.getElementById("root");
-if (!container) throw new Error("Root element not found");
+const rootElement = document.getElementById("root");
 
-if (!container.__reactRoot) {
-  container.__reactRoot = createRoot(container);
+if (!rootElement) {
+  throw new Error("Root element with id 'root' not found");
 }
 
-container.__reactRoot.render(<App />);
+// Only create root once, Vite's HMR will handle hot reloads
+createRoot(rootElement).render(<App />);
