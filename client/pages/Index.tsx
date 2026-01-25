@@ -1,48 +1,9 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, AlertCircle, Clock, RefreshCw } from "lucide-react";
-
-interface Bot {
-  id: string;
-  name: string;
-  status: "online" | "offline" | "restarting";
-  lastUpdate: string;
-  uptime: number;
-}
-
-const MOCK_BOTS: Bot[] = [
-  {
-    id: "bot-1",
-    name: "Discord Bot",
-    status: "online",
-    lastUpdate: "2024-01-20 14:32:00",
-    uptime: 98.5,
-  },
-  {
-    id: "bot-2",
-    name: "Telegram Bot",
-    status: "online",
-    lastUpdate: "2024-01-20 14:31:45",
-    uptime: 99.2,
-  },
-  {
-    id: "bot-3",
-    name: "API Server",
-    status: "offline",
-    lastUpdate: "2024-01-20 14:00:00",
-    uptime: 85.3,
-  },
-  {
-    id: "bot-4",
-    name: "Processing Worker",
-    status: "restarting",
-    lastUpdate: "2024-01-20 14:35:20",
-    uptime: 92.1,
-  },
-];
+import { Activity, AlertCircle, Clock } from "lucide-react";
+import { useBotContext } from "@/context/BotContext";
 
 export default function Index() {
-  const [bots, setBots] = useState<Bot[]>(MOCK_BOTS);
+  const { bots } = useBotContext();
 
   const getStatusColor = (status: string) => {
     switch (status) {
