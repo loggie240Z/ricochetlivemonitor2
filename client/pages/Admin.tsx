@@ -25,11 +25,7 @@ export default function Admin() {
   };
 
   const changeStatus = (botId: string, newStatus: BotStatus) => {
-    setBots(
-      bots.map((bot) =>
-        bot.id === botId ? { ...bot, status: newStatus } : bot
-      )
-    );
+    updateBotStatus(botId, newStatus);
   };
 
   const getStatusColor = (status: string) => {
