@@ -70,7 +70,9 @@ export default function Index() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-card rounded-lg border border-border p-6">
               <p className="text-sm text-muted-foreground mb-2">Total Bots</p>
-              <p className="text-3xl font-bold text-foreground">{bots.length}</p>
+              <p className="text-3xl font-bold text-foreground">
+                {bots.length}
+              </p>
             </div>
             <div className="bg-card rounded-lg border border-border p-6">
               <p className="text-sm text-muted-foreground mb-2">Online</p>
@@ -117,7 +119,9 @@ export default function Index() {
                       >
                         <div
                           className={`w-2 h-2 rounded-full ${getStatusColor(bot.status)} ${
-                            bot.status === "restarting" ? "animate-pulse-subtle" : ""
+                            bot.status === "restarting"
+                              ? "animate-pulse-subtle"
+                              : ""
                           }`}
                         />
                         <span className="capitalize text-foreground">
@@ -129,8 +133,12 @@ export default function Index() {
                     {/* Stats */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Last Update</span>
-                        <span className="text-foreground">{bot.lastUpdate}</span>
+                        <span className="text-muted-foreground">
+                          Last Update
+                        </span>
+                        <span className="text-foreground">
+                          {bot.lastUpdate}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Uptime</span>

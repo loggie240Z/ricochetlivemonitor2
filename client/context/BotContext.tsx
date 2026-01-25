@@ -95,8 +95,8 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
     // Update bot status
     setBots(
       bots.map((b) =>
-        b.id === botId ? { ...b, status: newStatus, lastUpdate: timestamp } : b
-      )
+        b.id === botId ? { ...b, status: newStatus, lastUpdate: timestamp } : b,
+      ),
     );
 
     // Add event for status change
@@ -130,7 +130,7 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
                   incidents: d.incidents + 1,
                   severity: d.incidents + 1 >= 3 ? "high" : "medium",
                 }
-              : d
+              : d,
           ),
         });
       } else {

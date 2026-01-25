@@ -25,11 +25,11 @@ export default function Downtime() {
 
   const totalDowntime = downtimes.reduce(
     (sum, item) => sum + item.totalDowntime,
-    0
+    0,
   );
   const totalIncidents = downtimes.reduce(
     (sum, item) => sum + item.incidents,
-    0
+    0,
   );
   const avgDowntimePerIncident =
     totalIncidents > 0 ? (totalDowntime / totalIncidents).toFixed(1) : 0;
@@ -75,9 +75,7 @@ export default function Downtime() {
             <p className="text-3xl font-bold text-foreground">
               {formatDuration(totalDowntime)}
             </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Last 5 days
-            </p>
+            <p className="text-xs text-muted-foreground mt-2">Last 5 days</p>
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6">
@@ -101,9 +99,7 @@ export default function Downtime() {
             <p className="text-3xl font-bold text-foreground">
               {avgDowntimePerIncident}m
             </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Per incident
-            </p>
+            <p className="text-xs text-muted-foreground mt-2">Per incident</p>
           </div>
         </div>
 
@@ -114,7 +110,10 @@ export default function Downtime() {
           </h2>
           <div className="space-y-4">
             {downtimes.map((item) => (
-              <div key={item.date} className="bg-card rounded-lg border border-border p-6">
+              <div
+                key={item.date}
+                className="bg-card rounded-lg border border-border p-6"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-semibold text-foreground">
@@ -164,7 +163,10 @@ export default function Downtime() {
                         Availability
                       </p>
                       <p className="text-xs font-semibold text-foreground">
-                        {(100 - (item.totalDowntime / (24 * 60)) * 100).toFixed(1)}%
+                        {(100 - (item.totalDowntime / (24 * 60)) * 100).toFixed(
+                          1,
+                        )}
+                        %
                       </p>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2 overflow-hidden">

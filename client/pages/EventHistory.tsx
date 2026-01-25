@@ -15,7 +15,7 @@ export default function EventHistory() {
   const filteredEvents = botEvents.filter(
     (event) =>
       event.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.details.toLowerCase().includes(searchTerm.toLowerCase())
+      event.details.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getEventColor = (type: string) => {
@@ -83,13 +83,12 @@ export default function EventHistory() {
             </div>
           ) : (
             filteredEvents.map((event, index) => (
-              <div
-                key={event.id}
-                className="relative flex gap-4"
-              >
+              <div key={event.id} className="relative flex gap-4">
                 {/* Timeline */}
                 <div className="flex flex-col items-center">
-                  <div className={`w-4 h-4 rounded-full ${getEventColor(event.type).split(" ")[0]} border-2 ${getEventColor(event.type).split(" ")[2]}`} />
+                  <div
+                    className={`w-4 h-4 rounded-full ${getEventColor(event.type).split(" ")[0]} border-2 ${getEventColor(event.type).split(" ")[2]}`}
+                  />
                   {index < filteredEvents.length - 1 && (
                     <div className="w-1 h-12 bg-border/40 my-2" />
                   )}
