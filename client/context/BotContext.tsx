@@ -106,10 +106,18 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
     const fetchBots = async () => {
       try {
         const response = await fetch("/api/bots");
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
         const data = await response.json();
-        setBots(data.bots);
+        if (data.bots && data.bots.length > 0) {
+          setBots(data.bots);
+        } else {
+          throw new Error("No bots data returned from server");
+        }
       } catch (error) {
         console.error("Failed to fetch bots from server:", error);
+        // Keep loading false to show the page even if API fails
       } finally {
         setLoading(false);
       }
