@@ -125,7 +125,7 @@ const getInitialDowntime = (): Record<string, DowntimeEstimate[]> => {
 };
 
 export const BotProvider = ({ children }: { children: ReactNode }) => {
-  const [bots, setBots] = useState<Bot[]>([]);
+  const [bots, setBots] = useState<Bot[]>(FALLBACK_BOTS);
   const [events, setEvents] =
     useState<Record<string, Event[]>>(getInitialEvents);
   const [downtime, setDowntime] =
