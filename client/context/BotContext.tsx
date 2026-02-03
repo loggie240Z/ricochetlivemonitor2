@@ -73,29 +73,29 @@ const FALLBACK_BOTS: Bot[] = [
 ];
 
 const getInitialEvents = (): Record<string, Event[]> => {
-  if (typeof window === "undefined") {
-    return {
-      "bot-1": [],
-      "bot-2": [],
-      "bot-3": [],
-      "bot-4": [],
-    };
-  }
-
-  try {
-    const saved = localStorage.getItem("bot-monitor-events");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (error) {
-    console.error("Failed to load events from localStorage:", error);
-  }
-  return {
+  const defaultEvents = {
     "bot-1": [],
     "bot-2": [],
     "bot-3": [],
     "bot-4": [],
   };
+
+  if (typeof window === "undefined") {
+    return defaultEvents;
+  }
+
+  try {
+    const saved = localStorage.getItem("bot-monitor-events");
+    if (saved && typeof saved === "string") {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === "object") {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load events from localStorage:", error);
+  }
+  return defaultEvents;
 };
 
 const getInitialDowntime = (): Record<string, DowntimeEstimate[]> => {
