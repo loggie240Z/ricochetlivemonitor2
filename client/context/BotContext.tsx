@@ -281,6 +281,7 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error("Failed to update bot status:", error);
+      throw error;
     }
   };
 
