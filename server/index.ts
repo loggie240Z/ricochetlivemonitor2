@@ -63,19 +63,23 @@ export function createServer() {
 
   // IP tracking middleware
   app.use((_req, res, next) => {
-    const ip =
-      _req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
-      _req.socket.remoteAddress ||
-      "unknown";
+    try {
+      const ip =
+        _req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
+        _req.socket.remoteAddress ||
+        "unknown";
 
-    // Track visitor if not a localhost/internal request
-    if (!ip.includes("127.0.0.1") && !ip.includes("::1")) {
-      const visitor: Visitor = {
-        ip,
-        timestamp: new Date().toISOString(),
-        userAgent: _req.headers["user-agent"] || "unknown",
-      };
-      visitors.push(visitor);
+      // Track visitor if not a localhost/internal request
+      if (!ip.includes("127.0.0.1") && !ip.includes("::1")) {
+        const visitor: Visitor = {
+          ip,
+          timestamp: new Date().toISOString(),
+          userAgent: _req.headers["user-agent"] || "unknown",
+        };
+        visitors.push(visitor);
+      }
+    } catch (error) {
+      console.error("Error in IP tracking middleware:", error);
     }
     next();
   });
