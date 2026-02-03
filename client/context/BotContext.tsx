@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import type { Bot as SharedBot, UpdateBotRequest } from "@shared/api";
 
 export type BotStatus = "online" | "offline" | "restarting";
 
@@ -24,19 +25,14 @@ export interface DowntimeEstimate {
   severity: "low" | "medium" | "high";
 }
 
-export interface Bot {
-  id: string;
-  name: string;
-  status: BotStatus;
-  lastUpdate: string;
-  uptime: number;
-}
+export interface Bot extends SharedBot {}
 
 interface BotContextType {
   bots: Bot[];
   events: Record<string, Event[]>;
   downtime: Record<string, DowntimeEstimate[]>;
-  updateBotStatus: (botId: string, newStatus: BotStatus) => void;
+  updateBotStatus: (botId: string, newStatus: BotStatus) => Promise<void>;
+  loading: boolean;
 }
 
 const BotContext = createContext<BotContextType | undefined>(undefined);
@@ -44,51 +40,6 @@ const BotContext = createContext<BotContextType | undefined>(undefined);
 const TODAY = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD format
 const NOW = new Date();
 const CURRENT_TIME = `${String(NOW.getHours()).padStart(2, "0")}:${String(NOW.getMinutes()).padStart(2, "0")}:${String(NOW.getSeconds()).padStart(2, "0")}`;
-
-const INITIAL_BOTS: Bot[] = [
-  {
-    id: "bot-1",
-    name: "Ricochet",
-    status: "online",
-    lastUpdate: `${TODAY} ${CURRENT_TIME}`,
-    uptime: 98.5,
-  },
-  {
-    id: "bot-2",
-    name: "Custom Bot Hosting",
-    status: "online",
-    lastUpdate: `${TODAY} ${CURRENT_TIME}`,
-    uptime: 99.2,
-  },
-  {
-    id: "bot-3",
-    name: "Ricochet API",
-    status: "offline",
-    lastUpdate: `${TODAY} ${CURRENT_TIME}`,
-    uptime: 85.3,
-  },
-  {
-    id: "bot-4",
-    name: "Server",
-    status: "restarting",
-    lastUpdate: `${TODAY} ${CURRENT_TIME}`,
-    uptime: 92.1,
-  },
-];
-
-const getInitialBots = (): Bot[] => {
-  if (typeof window === "undefined") return INITIAL_BOTS;
-
-  try {
-    const saved = localStorage.getItem("bot-monitor-bots");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (error) {
-    console.error("Failed to load bots from localStorage:", error);
-  }
-  return INITIAL_BOTS;
-};
 
 const getInitialEvents = (): Record<string, Event[]> => {
   if (typeof window === "undefined") {
@@ -143,20 +94,33 @@ const getInitialDowntime = (): Record<string, DowntimeEstimate[]> => {
 };
 
 export const BotProvider = ({ children }: { children: ReactNode }) => {
-  const [bots, setBots] = useState<Bot[]>(getInitialBots);
+  const [bots, setBots] = useState<Bot[]>([]);
   const [events, setEvents] =
     useState<Record<string, Event[]>>(getInitialEvents);
   const [downtime, setDowntime] =
     useState<Record<string, DowntimeEstimate[]>>(getInitialDowntime);
+  const [loading, setLoading] = useState(true);
 
-  // Persist bots to localStorage
+  // Fetch bots from server on mount
   useEffect(() => {
-    try {
-      localStorage.setItem("bot-monitor-bots", JSON.stringify(bots));
-    } catch (error) {
-      console.error("Failed to save bots to localStorage:", error);
-    }
-  }, [bots]);
+    const fetchBots = async () => {
+      try {
+        const response = await fetch("/api/bots");
+        const data = await response.json();
+        setBots(data.bots);
+      } catch (error) {
+        console.error("Failed to fetch bots from server:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBots();
+
+    // Poll for updates every 5 seconds
+    const interval = setInterval(fetchBots, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Persist events to localStorage
   useEffect(() => {
@@ -176,74 +140,86 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [downtime]);
 
-  const updateBotStatus = (botId: string, newStatus: BotStatus) => {
+  const updateBotStatus = async (botId: string, newStatus: BotStatus) => {
     const bot = bots.find((b) => b.id === botId);
     if (!bot) return;
 
     const oldStatus = bot.status;
     const timestamp = `${TODAY} ${CURRENT_TIME}`;
 
-    // Update bot status
-    setBots(
-      bots.map((b) =>
-        b.id === botId ? { ...b, status: newStatus, lastUpdate: timestamp } : b,
-      ),
-    );
+    try {
+      // Update on server
+      const response = await fetch(`/api/bots/${botId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus } as UpdateBotRequest),
+      });
 
-    // Add event for status change
-    const newEvent: Event = {
-      id: `event-${Date.now()}`,
-      timestamp,
-      type: "status_change",
-      message: `Status changed to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
-      details: `Changed from ${oldStatus} to ${newStatus}`,
-    };
-
-    setEvents({
-      ...events,
-      [botId]: [newEvent, ...(events[botId] || [])],
-    });
-
-    // If bot goes offline, add a downtime estimate
-    if (newStatus === "offline" && oldStatus !== "offline") {
-      const today = new Date(TODAY);
-      const existingDowntimes = downtime[botId] || [];
-      const existingToday = existingDowntimes.find((d) => d.date === TODAY);
-
-      if (existingToday) {
-        // Update existing downtime for today
-        setDowntime({
-          ...downtime,
-          [botId]: existingDowntimes.map((d) =>
-            d.date === TODAY
-              ? {
-                  ...d,
-                  incidents: d.incidents + 1,
-                  severity: d.incidents + 1 >= 3 ? "high" : "medium",
-                }
-              : d,
-          ),
-        });
-      } else {
-        // Create new downtime entry for today
-        const newDowntimeEntry: DowntimeEstimate = {
-          date: TODAY,
-          incidents: 1,
-          totalDowntime: 0,
-          affectedServices: ["Unknown Service"],
-          severity: "low",
-        };
-
-        setDowntime({
-          ...downtime,
-          [botId]: [newDowntimeEntry, ...(downtime[botId] || [])],
-        });
+      if (!response.ok) {
+        throw new Error("Failed to update bot status");
       }
+
+      const data = await response.json();
+
+      // Update local state with server response
+      setBots(bots.map((b) => (b.id === botId ? data.bot : b)));
+
+      // Add event for status change
+      const newEvent: Event = {
+        id: `event-${Date.now()}`,
+        timestamp,
+        type: "status_change",
+        message: `Status changed to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+        details: `Changed from ${oldStatus} to ${newStatus}`,
+      };
+
+      setEvents({
+        ...events,
+        [botId]: [newEvent, ...(events[botId] || [])],
+      });
+
+      // If bot goes offline, add a downtime estimate
+      if (newStatus === "offline" && oldStatus !== "offline") {
+        const existingDowntimes = downtime[botId] || [];
+        const existingToday = existingDowntimes.find((d) => d.date === TODAY);
+
+        if (existingToday) {
+          // Update existing downtime for today
+          setDowntime({
+            ...downtime,
+            [botId]: existingDowntimes.map((d) =>
+              d.date === TODAY
+                ? {
+                    ...d,
+                    incidents: d.incidents + 1,
+                    severity: d.incidents + 1 >= 3 ? "high" : "medium",
+                  }
+                : d,
+            ),
+          });
+        } else {
+          // Create new downtime entry for today
+          const newDowntimeEntry: DowntimeEstimate = {
+            date: TODAY,
+            incidents: 1,
+            totalDowntime: 0,
+            affectedServices: ["Unknown Service"],
+            severity: "low",
+          };
+
+          setDowntime({
+            ...downtime,
+            [botId]: [newDowntimeEntry, ...(downtime[botId] || [])],
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update bot status:", error);
     }
   };
 
   return (
-    <BotContext.Provider value={{ bots, events, downtime, updateBotStatus }}>
+    <BotContext.Provider value={{ bots, events, downtime, updateBotStatus, loading }}>
       {children}
     </BotContext.Provider>
   );
