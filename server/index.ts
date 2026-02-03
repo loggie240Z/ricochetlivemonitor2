@@ -94,44 +94,78 @@ export function createServer() {
 
   // Bot API routes
   app.get("/api/bots", (_req, res) => {
-    res.json({ bots: Object.values(botStates) });
+    try {
+      if (Object.keys(botStates).length === 0) {
+        initializeBots();
+      }
+      res.json({ bots: Object.values(botStates) });
+    } catch (error) {
+      console.error("Error in GET /api/bots:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.put("/api/bots/:id", (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body as UpdateBotRequest;
+    try {
+      const { id } = req.params;
+      const { status } = req.body as UpdateBotRequest;
 
-    if (!botStates[id]) {
-      return res.status(404).json({ error: "Bot not found" });
+      if (!botStates[id]) {
+        return res.status(404).json({ error: "Bot not found" });
+      }
+
+      if (!["online", "offline", "restarting"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const today = new Date().toLocaleDateString("en-CA");
+      const currentHour = new Date().getHours().toString().padStart(2, "0");
+      const currentMinute = new Date()
+        .getMinutes()
+        .toString()
+        .padStart(2, "0");
+      const currentTime = `${currentHour}:${currentMinute}`;
+
+      botStates[id] = {
+        ...botStates[id],
+        status,
+        lastUpdate: `${today} ${currentTime}`,
+      };
+
+      res.json({ bot: botStates[id] });
+    } catch (error) {
+      console.error("Error in PUT /api/bots/:id:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    if (!["online", "offline", "restarting"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-
-    const today = new Date().toLocaleDateString("en-CA");
-    const currentHour = new Date().getHours().toString().padStart(2, "0");
-    const currentMinute = new Date().getMinutes().toString().padStart(2, "0");
-    const currentTime = `${currentHour}:${currentMinute}`;
-
-    botStates[id] = {
-      ...botStates[id],
-      status,
-      lastUpdate: `${today} ${currentTime}`,
-    };
-
-    res.json({ bot: botStates[id] });
   });
 
   // Visitor tracking routes
   app.get("/api/visitors", (_req, res) => {
-    // Remove duplicate IPs, keep most recent
-    const uniqueVisitors = Array.from(
-      new Map(visitors.reverse().map((v) => [v.ip, v])).values(),
-    ).reverse();
+    try {
+      // Remove duplicate IPs, keep most recent
+      const uniqueVisitors = Array.from(
+        new Map(visitors.reverse().map((v) => [v.ip, v])).values()
+      ).reverse();
 
-    res.json({ visitors: uniqueVisitors });
+      res.json({ visitors: uniqueVisitors });
+    } catch (error) {
+      console.error("Error in GET /api/visitors:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
+
+  // Error handling middleware
+  app.use(
+    (
+      err: any,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction
+    ) => {
+      console.error("Unhandled error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  );
 
   return app;
 }
