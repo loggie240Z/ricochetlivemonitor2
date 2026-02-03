@@ -217,7 +217,7 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
       if (!response.ok) {
         const errorData = await response.text();
         throw new Error(
-          `Failed to update bot status: ${response.status} ${errorData}`
+          `Failed to update bot status: ${response.status} ${errorData}`,
         );
       }
 
