@@ -141,7 +141,9 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-        const response = await fetch("/api/bots", { signal: controller.signal });
+        const response = await fetch("/api/bots", {
+          signal: controller.signal,
+        });
         clearTimeout(timeoutId);
 
         if (!response.ok) {
