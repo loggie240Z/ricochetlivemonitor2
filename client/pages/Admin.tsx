@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Lock, CheckCircle, AlertCircle, Globe } from "lucide-react";
 import { useBotContext, BotStatus } from "@/context/BotContext";
+import { useToast } from "@/hooks/use-toast";
 import type { Visitor } from "@shared/api";
 
 const ADMIN_CODE = "032374";
