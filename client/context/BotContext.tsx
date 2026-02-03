@@ -138,7 +138,12 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchBots = async () => {
       try {
-        const response = await fetch("/api/bots");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const response = await fetch("/api/bots", { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
@@ -148,7 +153,7 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (error) {
         console.error("Failed to fetch bots from server:", error);
-        // Use fallback bots - they're already in state
+        // Use fallback bots - they're already in state, loading will be set to false
       } finally {
         if (isMounted) {
           setLoading(false);
