@@ -65,8 +65,21 @@ export default function Admin() {
     }
   };
 
-  const changeStatus = (botId: string, newStatus: BotStatus) => {
-    updateBotStatus(botId, newStatus);
+  const changeStatus = async (botId: string, newStatus: BotStatus) => {
+    try {
+      await updateBotStatus(botId, newStatus);
+      toast({
+        title: "Success",
+        description: `Bot status updated to ${newStatus}`,
+      });
+    } catch (err) {
+      console.error("Error changing status:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update bot status",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
