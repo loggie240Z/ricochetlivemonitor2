@@ -219,7 +219,9 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <BotContext.Provider value={{ bots, events, downtime, updateBotStatus, loading }}>
+    <BotContext.Provider
+      value={{ bots, events, downtime, updateBotStatus, loading }}
+    >
       {children}
     </BotContext.Provider>
   );

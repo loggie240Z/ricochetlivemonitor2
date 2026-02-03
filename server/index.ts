@@ -63,9 +63,10 @@ export function createServer() {
 
   // IP tracking middleware
   app.use((_req, res, next) => {
-    const ip = _req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
-               _req.socket.remoteAddress ||
-               "unknown";
+    const ip =
+      _req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
+      _req.socket.remoteAddress ||
+      "unknown";
 
     // Track visitor if not a localhost/internal request
     if (!ip.includes("127.0.0.1") && !ip.includes("::1")) {
@@ -122,9 +123,7 @@ export function createServer() {
   app.get("/api/visitors", (_req, res) => {
     // Remove duplicate IPs, keep most recent
     const uniqueVisitors = Array.from(
-      new Map(
-        visitors.reverse().map((v) => [v.ip, v])
-      ).values()
+      new Map(visitors.reverse().map((v) => [v.ip, v])).values(),
     ).reverse();
 
     res.json({ visitors: uniqueVisitors });

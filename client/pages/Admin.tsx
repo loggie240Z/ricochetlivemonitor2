@@ -161,7 +161,8 @@ export default function Admin() {
         <div className="mb-8 flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
           <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
           <p className="text-sm text-green-400">
-            You are logged in as admin. You can now change bot statuses and view visitor data.
+            You are logged in as admin. You can now change bot statuses and view
+            visitor data.
           </p>
         </div>
 

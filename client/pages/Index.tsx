@@ -73,112 +73,122 @@ export default function Index() {
           <>
             {/* Status Overview */}
             <div className="mb-12">
-          <h2 className="text-xl font-semibold text-foreground mb-6">
-            Bot Status Overview
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-card rounded-lg border border-border p-6">
-              <p className="text-sm text-muted-foreground mb-2">Total Bots</p>
-              <p className="text-3xl font-bold text-foreground">
-                {bots.length}
-              </p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-6">
-              <p className="text-sm text-muted-foreground mb-2">Online</p>
-              <p className="text-3xl font-bold text-green-500">
-                {bots.filter((b) => b.status === "online").length}
-              </p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-6">
-              <p className="text-sm text-muted-foreground mb-2">Restarting</p>
-              <p className="text-3xl font-bold text-amber-500">
-                {bots.filter((b) => b.status === "restarting").length}
-              </p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-6">
-              <p className="text-sm text-muted-foreground mb-2">Offline</p>
-              <p className="text-3xl font-bold text-red-500">
-                {bots.filter((b) => b.status === "offline").length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bots Grid */}
-        <div>
-          <h2 className="text-xl font-semibold text-foreground mb-6">Bots</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bots.map((bot) => (
-              <div
-                key={bot.id}
-                className="bg-card rounded-lg border border-border overflow-hidden hover:border-border/80 transition-colors group"
-              >
-                {/* Card Header with Status */}
-                <div className={`h-1 w-full ${getStatusColor(bot.status)}`} />
-
-                <div className="p-6">
-                  {/* Bot Info */}
-                  <div className="mb-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {bot.name}
-                      </h3>
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 ${getStatusBgColor(bot.status)}`}
-                      >
-                        <div
-                          className={`w-2 h-2 rounded-full ${getStatusColor(bot.status)} ${
-                            bot.status === "restarting"
-                              ? "animate-pulse-subtle"
-                              : ""
-                          }`}
-                        />
-                        <span className="capitalize text-foreground">
-                          {bot.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Last Update
-                        </span>
-                        <span className="text-foreground">
-                          {bot.lastUpdate}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Uptime</span>
-                        <span className="text-foreground font-medium">
-                          {bot.uptime}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3">
-                    <Link
-                      to={`/event-history?bot=${bot.id}`}
-                      className="flex-1 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Clock className="w-4 h-4" />
-                      History
-                    </Link>
-                    <Link
-                      to={`/downtime?bot=${bot.id}`}
-                      className="flex-1 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      Downtime
-                    </Link>
-                  </div>
+              <h2 className="text-xl font-semibold text-foreground mb-6">
+                Bot Status Overview
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Total Bots
+                  </p>
+                  <p className="text-3xl font-bold text-foreground">
+                    {bots.length}
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <p className="text-sm text-muted-foreground mb-2">Online</p>
+                  <p className="text-3xl font-bold text-green-500">
+                    {bots.filter((b) => b.status === "online").length}
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Restarting
+                  </p>
+                  <p className="text-3xl font-bold text-amber-500">
+                    {bots.filter((b) => b.status === "restarting").length}
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <p className="text-sm text-muted-foreground mb-2">Offline</p>
+                  <p className="text-3xl font-bold text-red-500">
+                    {bots.filter((b) => b.status === "offline").length}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+
+            {/* Bots Grid */}
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-6">
+                Bots
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {bots.map((bot) => (
+                  <div
+                    key={bot.id}
+                    className="bg-card rounded-lg border border-border overflow-hidden hover:border-border/80 transition-colors group"
+                  >
+                    {/* Card Header with Status */}
+                    <div
+                      className={`h-1 w-full ${getStatusColor(bot.status)}`}
+                    />
+
+                    <div className="p-6">
+                      {/* Bot Info */}
+                      <div className="mb-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {bot.name}
+                          </h3>
+                          <div
+                            className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 ${getStatusBgColor(bot.status)}`}
+                          >
+                            <div
+                              className={`w-2 h-2 rounded-full ${getStatusColor(bot.status)} ${
+                                bot.status === "restarting"
+                                  ? "animate-pulse-subtle"
+                                  : ""
+                              }`}
+                            />
+                            <span className="capitalize text-foreground">
+                              {bot.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Last Update
+                            </span>
+                            <span className="text-foreground">
+                              {bot.lastUpdate}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Uptime
+                            </span>
+                            <span className="text-foreground font-medium">
+                              {bot.uptime}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
+                        <Link
+                          to={`/event-history?bot=${bot.id}`}
+                          className="flex-1 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Clock className="w-4 h-4" />
+                          History
+                        </Link>
+                        <Link
+                          to={`/downtime?bot=${bot.id}`}
+                          className="flex-1 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <AlertCircle className="w-4 h-4" />
+                          Downtime
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
