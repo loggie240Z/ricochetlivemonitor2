@@ -134,6 +134,8 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
 
   // Fetch bots from server on mount
   useEffect(() => {
+    let isMounted = true;
+
     const fetchBots = async () => {
       try {
         const response = await fetch("/api/bots");
@@ -141,16 +143,16 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
           throw new Error(`API error: ${response.status}`);
         }
         const data = await response.json();
-        if (data.bots && data.bots.length > 0) {
+        if (isMounted && data.bots && Array.isArray(data.bots)) {
           setBots(data.bots);
-        } else {
-          throw new Error("No bots data returned from server");
         }
       } catch (error) {
         console.error("Failed to fetch bots from server:", error);
-        // Keep loading false to show the page even if API fails
+        // Use fallback bots - they're already in state
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -158,7 +160,10 @@ export const BotProvider = ({ children }: { children: ReactNode }) => {
 
     // Poll for updates every 5 seconds
     const interval = setInterval(fetchBots, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Persist events to localStorage
