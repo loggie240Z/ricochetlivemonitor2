@@ -21,11 +21,26 @@ export default function Admin() {
       const fetchVisitors = async () => {
         setLoadingVisitors(true);
         try {
-          const response = await fetch("/api/visitors");
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+          const response = await fetch("/api/visitors", {
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
           const data = await response.json();
-          setVisitors(data.visitors);
+          if (data.visitors && Array.isArray(data.visitors)) {
+            setVisitors(data.visitors);
+          } else {
+            setVisitors([]);
+          }
         } catch (error) {
           console.error("Failed to fetch visitors:", error);
+          setVisitors([]);
         } finally {
           setLoadingVisitors(false);
         }
