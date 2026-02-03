@@ -15,6 +15,7 @@ export default function Admin() {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loadingVisitors, setLoadingVisitors] = useState(false);
   const { bots, updateBotStatus } = useBotContext();
+  const { toast } = useToast();
 
   // Fetch visitors when tab changes
   useEffect(() => {
