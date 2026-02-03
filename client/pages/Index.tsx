@@ -3,7 +3,7 @@ import { Activity, AlertCircle, Clock } from "lucide-react";
 import { useBotContext } from "@/context/BotContext";
 
 export default function Index() {
-  const { bots } = useBotContext();
+  const { bots, loading } = useBotContext();
 
   const getStatusColor = (status: string) => {
     switch (status) {
